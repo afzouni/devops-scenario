@@ -1,0 +1,38 @@
+version: '3'
+services:
+  elasticsearch:
+    image: elasticsearch:7.10.1
+    environment:
+      - discovery.type=single-node
+    ports:
+      - 9200:9200
+  
+  kibana:
+    image: kibana:7.10.1
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+      - logstash
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://localhost:12201"
+
+  logstash:
+    image: logstash:7.10.1
+    links:
+      - elasticsearch
+    volumes:
+      - .:/etc/logstash
+    command: logstash -f /etc/logstash/logstash.conf
+    ports:
+      - 12201:12201/udp
+    depends_on:
+      - elasticsearch
+
+logging:
+  driver: gelf
+  options:
+    gelf-address: "udp://localhost:12201"
+    tag: "demo2_app"
