@@ -1,0 +1,69 @@
+version: '3'
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - prometheus_alerts:/etc/prometheus/alert.rules
+      - prometheus_db:/prometheus
+      - prometheus_configs:/etc/prometheus/
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--web.route-prefix=/'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    ports:
+      - '9090:9090'
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - monitor-net
+    
+  grafana:
+    image: grafana/grafana:latest  
+    volumes:
+      - grafana_data:/var/lib/grafana
+    ports:
+      - '3000:3000'
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - monitor-net
+
+networks:
+    monitor-net:
+
+volumes:
+  grafana_data:
+    driver: local
+    driver_opts:
+       o: bind
+       type: none
+       device: /mnt/monitoring/grafana
+
+  prometheus_db:
+    driver: local
+    driver_opts:
+       o: bind
+       type: none
+       device: /mnt/monitoring/prometheus/db
+  
+  prometheus_alerts:
+    driver: local
+    driver_opts:
+       o: bind
+       type: none
+       device: /mnt/monitoring/prometheus/alert.rules
+  
+  prometheus_configs:
+    driver: local
+    driver_opts:
+       o: bind
+       type: none
+       device: /mnt/monitoring/prometheus/configs/
+
+
+       
