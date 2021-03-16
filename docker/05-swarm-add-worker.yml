@@ -1,0 +1,17 @@
+---
+- hosts: all 
+ 
+  tasks:
+    - name: Get the worker join-token
+      shell: docker swarm join-token --quiet worker
+      register: worker_token
+      tags: swarm
+
+      when: "'manager' in group_names"
+    
+ 
+    - name: Add Workers to the Swarm
+      shell: "docker swarm join --token {{ hostvars['swarm-manager']['worker_token']['stdout'] }} {{ hostvars['swarm-manager']['ansible_facts']['eth1']['ipv4']['address'] }}:2377"
+      tags: swarm
+
+      when: "'worker' in group_names"

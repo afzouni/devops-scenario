@@ -1,0 +1,13 @@
+---
+- hosts: all 
+ 
+  tasks:
+    - name: Initialize Docker Swarm
+      shell: >
+            docker swarm init
+            --advertise-addr {{ hostvars['swarm-manager']['ansible_facts']['eth1']['ipv4']['address'] }}:2377
+      run_once: true
+      tags: swarm
+      when: "'manager' in group_names" 
+
+    

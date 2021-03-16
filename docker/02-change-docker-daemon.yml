@@ -1,0 +1,14 @@
+---
+- hosts: manager 
+ 
+  tasks:
+    - name: Copy 'daemon.json'
+      copy:
+        src: daemon.json
+        dest: /etc/docker/daemon.json
+ 
+    - name: restart docker
+      service:
+        name: docker
+        state: restarted
+        enabled: yes
