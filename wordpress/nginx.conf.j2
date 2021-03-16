@@ -1,0 +1,25 @@
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+include /etc/nginx/modules-enabled/*.conf;
+
+events {
+    worker_connections 768;
+}
+
+http {
+    upstream backend {
+        {% for host in groups['all'] %}
+		server {{ hostvars[host]['ansible_facts']['eth1']['ipv4']['address'] }}:8080;
+        {% endfor %}
+    }
+
+    server {
+        listen 80;
+
+        location / {
+            proxy_set_header Host $host;
+            proxy_pass http://backend;
+        }
+    }
+}

@@ -1,0 +1,42 @@
+# wordpress-stack.yml
+version: '3.1'
+services:  
+  web:
+    image: wordpress
+    restart: always
+    ports:
+      - 8080:80
+    volumes:
+      - web_data:/var/www/html
+    deploy:
+      replicas: 3
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: password
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - mysql_data:/var/lib/mysql
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+
+volumes:
+  web_data:
+    driver: local
+    driver_opts:
+       o: bind
+       type: none
+       device: /mnt/wordpress-stack/web
+
+  mysql_data:
+    driver: local
+    driver_opts:
+       o: bind
+       type: none
+       device: /mnt/wordpress-stack/mysql
+  

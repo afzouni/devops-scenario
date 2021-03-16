@@ -1,0 +1,41 @@
+---
+- hosts: all
+  tasks:        
+    - name: update apt cache
+      apt: 
+        update_cache: yes
+      tags:
+        - apt
+      when: "'manager' in group_names" 
+
+    - name: install nginx
+      apt: name=nginx state=latest
+      tags:
+        - apt
+        - nginx
+      when: "'manager' in group_names" 
+    
+    - name: start nginx [optional]
+      service:
+          name: nginx
+          state: started
+      tags:
+        - nginx
+      when: "'manager' in group_names" 
+  
+    - name: create nginx config
+      template:
+        src: nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+      tags:
+        - nginx-config
+      when: "'manager' in group_names" 
+
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted
+      tags:
+        - nginx
+        - nginx-config
+      when: "'manager' in group_names" 
