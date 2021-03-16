@@ -1,0 +1,42 @@
+---
+- hosts: registry 
+
+  tasks:   
+    - name: Install packages
+      apt:
+        name: "{{item}}"
+        state: present
+        update_cache: yes
+      loop:
+        - curl 
+        - openssh-server 
+        - ca-certificates 
+        - tzdata 
+        - perl 
+
+    - name: Download gitlab installer
+      get_url:
+        url: https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.deb.sh
+        dest:  /tmp/script.deb.sh
+        mode: '0755'
+      become: true
+    
+    - name: Install gitlab
+      command: bash /tmp/script.deb.sh
+          
+    - name: Install gitlab
+      shell: |
+        EXTERNAL_URL="https://git.afzouni.ir" apt-get install gitlab-ee
+
+    - name: Enable registry
+      lineinfile:
+        dest: /etc/gitlab/gitlab.rb
+        regexp: '^#.*registry_external_url'
+        line: "registry_external_url 'https://registry.afzouni.ir'"
+        state: present
+
+    - name: Restart gitlab-ee
+      shell: |
+        gitlab-ctl restart
+    
+   
