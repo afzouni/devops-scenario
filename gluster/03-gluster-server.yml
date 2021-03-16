@@ -1,0 +1,35 @@
+---
+- hosts: all 
+
+  tasks:
+    - name: Gluster Peer Probe   
+      shell: |
+        gluster peer probe  swarm-worker-1
+        gluster peer probe  swarm-worker-2
+
+      when: "'manager' in group_names"
+
+
+    - name: Create a xfs filesystem on /dev/sdb
+      shell: >
+        gluster volume create gfs 
+        replica 3     
+        swarm-manager:/gluster/bricks/swarm-manager/brick     
+        swarm-worker-1:/gluster/bricks/swarm-worker-1/brick     
+        swarm-worker-2:/gluster/bricks/swarm-worker-2/brick 
+      
+      when: "'manager' in group_names"
+
+    - name: Start Gluster Volume
+      shell: gluster volume start gfs
+      
+      when: "'manager' in group_names"
+      
+
+    - name: Setup security and authentication
+      shell: >
+        gluster volume set gfs 
+        auth.allow 192.168.10.10,192.168.10.11,192.168.10.12 
+
+      when: "'manager' in group_names"
+

@@ -1,0 +1,13 @@
+---
+- hosts: all 
+  tasks:
+    - name: Mount the glusterFS volume
+      lineinfile: 
+        dest: /etc/fstab
+        line: "localhost:/gfs /mnt glusterfs defaults,_netdev,backupvolfile-server=localhost 0 0"
+        
+    - name: Mount gfs
+      shell: "mount.glusterfs localhost:/gfs /mnt"
+   
+      
+

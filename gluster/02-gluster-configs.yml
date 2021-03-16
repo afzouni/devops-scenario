@@ -1,0 +1,29 @@
+---
+- hosts: all 
+
+  tasks:
+    - name: Create a xfs filesystem on /dev/vdb
+      community.general.filesystem:
+        fstype: xfs
+        dev: /dev/vdb
+
+    - name: Create gluster directory
+      file:
+        path: /gluster/bricks/{{ inventory_hostname }}/
+        state: directory
+    
+    - name: Edit fstab
+      lineinfile: 
+        dest: /etc/fstab
+        line: "/dev/vdb /gluster/bricks/{{ inventory_hostname }} xfs defaults 0 0"
+   
+    - name: mount all 
+      shell: "mount -a"
+    
+    - name: Create gluster Local Directory
+      file:
+        path: /gluster/bricks/{{ inventory_hostname }}/brick
+        state: directory
+        
+      
+

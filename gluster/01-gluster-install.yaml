@@ -1,0 +1,22 @@
+---
+- hosts: all 
+
+  tasks:
+    - name: Add Gluster Repository
+      apt_repository:
+        repo: ppa:gluster/glusterfs-6 
+    
+    - name: Install gluster-server
+      apt:
+        name: "{{item}}"
+        state: present
+        update_cache: yes
+      loop:
+        - glusterfs-server
+    
+    - name: Enable and Start gluster-server
+      systemd:
+        name: glusterd
+        state: started
+        enabled: yes
+      

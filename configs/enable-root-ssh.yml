@@ -1,0 +1,15 @@
+---
+- hosts: target 
+ 
+  tasks:
+    - name: Configure sshd
+      lineinfile:
+        path: "/etc/ssh/sshd_config"
+        regex: "^(#)?{{item.key}}"
+        line: "{{item.key}} {{item.value}}"
+        state: present
+      loop:
+        - { key: "PermitRootLogin", value: "without-password" }
+        - { key: "PubkeyAuthentication", value: "yes" } 
+      notify:
+        - restart sshd

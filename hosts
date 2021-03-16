@@ -1,0 +1,16 @@
+# In The Name of Allah
+
+swarm-manager         
+swarm-worker-1     
+swarm-worker-2     
+
+[manager]
+swarm-manager
+
+[worker]
+swarm-worker-1
+swarm-worker-2
+
+[all:vars]
+ansible_user= ubuntu
+ansible_become= true
